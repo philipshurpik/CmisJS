@@ -1,14 +1,8 @@
 'use strict';
 
-var url = url || "http://cmis.alfresco.com/cmisbrowser";
-var username = "admin";
-var password = "admin";
-
-/*
-url = "http://devel.dataspace.cc/cmis/browser";
-username = "philip";
-password = "111";
-*/
+var url = url || "http://devel.dataspace.cc/cmis/browser";
+var username = "philip";
+var password = "111";
 
 var isNode = typeof module !== 'undefined' && module.exports;
 
@@ -440,7 +434,7 @@ describe('CmisJS library test', function () {
 
   var changeToken;
   it('should append chunked content to document', function (done) {
-    session.appendContentStream(docId, chunkArray[1], true).ok(function (data) {
+    session.appendContentStream(docId, chunkArray[1], false).ok(function (data) {
       changeToken = data.succinctProperties['cmis:changeToken'];
       assert(data, 'OK');
 
