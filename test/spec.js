@@ -4,6 +4,12 @@ var url = url || "http://cmis.alfresco.com/cmisbrowser";
 var username = "admin";
 var password = "admin";
 
+/*
+url = "http://devel.dataspace.cc/cmis/browser";
+username = "philip";
+password = "111";
+*/
+
 var isNode = typeof module !== 'undefined' && module.exports;
 
 if (isNode) {
@@ -63,7 +69,7 @@ describe('CmisJS library test', function () {
         done();
       });
   });
-
+/*
   it('should get repository informations', function (done) {
     session.getRepositoryInfo()
       .ok(function (data) {
@@ -106,7 +112,7 @@ describe('CmisJS library test', function () {
       });
   });
 
-  it('should query the repository', function (done) {
+  xit('should query the repository', function (done) {
     session.query("select * from cmis:document", false, {
       maxItems: 3
     })
@@ -195,7 +201,7 @@ describe('CmisJS library test', function () {
       done();
     });
   });
-
+ */
   it('should retrieve an object by id', function (done) {
     session.getObject(rootId).ok(function (data) {
       rootId = data.succinctProperties['cmis:objectId'];
@@ -207,7 +213,7 @@ describe('CmisJS library test', function () {
 
   var randomFolder = "CmisJS" + Math.random();
 
-  it('should non found this path', function (done) {
+  xit('should non found this path', function (done) {
     session.getObjectByPath("/" + randomFolder).notOk(function (res) {
       assert(res.notFound, 'object should not exist');
       done();
@@ -230,7 +236,7 @@ describe('CmisJS library test', function () {
       });
     });
   });
-
+/*
   it('should return object children', function (done) {
     session.getChildren(randomFolderId).ok(function (data) {
       assert(
@@ -317,20 +323,23 @@ describe('CmisJS library test', function () {
       done();
     });
   });
+*/
+  var docId;
 
-  var docId
-  var txt = 'this is the document content';
+  // ******  Chunk array ****** //
+  var chunkArray = ["first", "second", "third"];
+
   it('should create a document', function (done) {
     var aces = {}
     aces[username] = ['cmis:read'];
-    session.createDocument(randomFolderId, txt, 'test.txt',
+    session.createDocument(randomFolderId, chunkArray[0], 'test.txt',
       'text/plain', undefined, undefined, aces).ok(function (data) {
       docId = data.succinctProperties['cmis:objectId'];
       done();
     });
   });
 
-  it('should update properties of documents', function (done) {
+/*it('should update properties of documents', function (done) {
     session.bulkUpdateProperties([docId], {
       'cmis:name': 'mod-test.txt'
     }).ok(function (data) {
@@ -427,34 +436,33 @@ describe('CmisJS library test', function () {
       done();
     });
   });
+ */
 
-  var appended = " - appended";
   var changeToken;
-  it('should append content to document', function (done) {
-    session.appendContentStream(docId, appended, true).ok(function (data) {
+  it('should append chunked content to document', function (done) {
+    session.appendContentStream(docId, chunkArray[1], true).ok(function (data) {
       changeToken = data.succinctProperties['cmis:changeToken'];
       assert(data, 'OK');
-      done();
-    }).notOk(function (res) {
-      appended = false;
-      assert(res.body.exception == 'notSupported', "not supported");
-      console.log("append is not supported in this repository")
-      done();
+
+      // append next chunk
+      session.appendContentStream(docId, chunkArray[2], true).ok(function (data) {
+        changeToken = data.succinctProperties['cmis:changeToken'];
+        assert(data, 'OK');
+        done();
+      });
     });
   });
 
   it('should get document appended content', function (done) {
-    if (!appended) {
-      console.log("skipping")
-      done();
-      return;
-    }
     session.getContentStream(docId).ok(function (data) {
-      assert(data == txt + appended, 'document content should be "' + txt + appended + '"');
+      console.log('expected content: ' + chunkArray.join(''));
+      console.log('result content: ' + data);
+      assert(data === chunkArray.join(''), 'document content should be "' + chunkArray.join('') + '"');
       done();
     });
   });
 
+/*
   it('should delete object content', function (done) {
     session.deleteContentStream(docId, {
       changeToken: changeToken
@@ -482,7 +490,7 @@ describe('CmisJS library test', function () {
     });
   });
 
-  it('should get object policies', function (done) {
+  xit('should get object policies', function (done) {
     session.getAppliedPolicies(docId).ok(function (data) {
       assert(data, 'OK');
       done();
@@ -505,14 +513,14 @@ describe('CmisJS library test', function () {
       done();
     });
   });
-
+ */
   it('should delete a folder tree', function (done) {
     session.deleteTree(randomFolderId, true, undefined, true).ok(function (data) {
       done();
     });
   });
 
-  it('should get latest changes', function (done) {
+  xit('should get latest changes', function (done) {
     session.getContentChanges(session.defaultRepository.latestChangeLogToken)
       .ok(function (data) {
         assert(data.objects !== undefined, "objects should be defined");
