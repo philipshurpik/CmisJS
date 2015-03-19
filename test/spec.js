@@ -435,12 +435,14 @@ describe('CmisJS library test', function () {
   var changeToken;
   it('should append chunked content to document', function (done) {
     session.appendContentStream(docId, chunkArray[1], false).ok(function (data) {
+      docId = data.succinctProperties['cmis:objectId'];
       changeToken = data.succinctProperties['cmis:changeToken'];
       assert(data, 'OK');
 
       // append next chunk
       session.appendContentStream(docId, chunkArray[2], true).ok(function (data) {
-        changeToken = data.succinctProperties['cmis:changeToken'];
+          docId = data.succinctProperties['cmis:objectId'];
+          changeToken = data.succinctProperties['cmis:changeToken'];
         assert(data, 'OK');
         done();
       });
